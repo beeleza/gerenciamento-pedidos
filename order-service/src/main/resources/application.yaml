@@ -1,0 +1,40 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: order-service
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        max.block.ms: 5000                     # falha rápido se o broker estiver fora (padrão: 60s)
+        enable.idempotence: true
+        spring.json.add.type.headers: false   # não manda o nome da classe Java no headers
+
+app:
+  kafka:
+    send-timeout-seconds: 10   # tempo máximo esperando a confirmação do broker
+    topics:
+      order-created: order-created
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: ${spring.application.name}
+    description: Recebe pedidos via REST e publica no Kafka

@@ -1,0 +1,49 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: processing-service
+
+  mongodb:
+    host: localhost
+    port: 27017
+    database: processing-service
+    username: admin
+    password: 90a799fae3425864b8ec3a093eba5525
+    authentication-database: admin
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: processing-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.beeleza.processing_service.event.OrderCreatedEvent
+        spring.json.trusted.packages: com.beeleza.processing_service.event
+
+app:
+  kafka:
+    topics:
+      order-created: order-created
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: ${spring.application.name}
+    description: Consome pedidos do Kafka e persiste no MongoDB
